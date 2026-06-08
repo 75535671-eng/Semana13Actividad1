@@ -12,6 +12,7 @@ firebase-service-account.json
 
 # Build
 dist/
+frontend/dist/
 out-tsc/
 .angular/
 
