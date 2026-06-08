@@ -12,7 +12,8 @@ from app.routers import firestore, realtime
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     cred_path = Path(settings.firebase_credentials_path)
-    if cred_path.exists():
+    has_credentials = bool(settings.firebase_credentials_json) or cred_path.exists()
+    if has_credentials:
         try:
             init_firebase()
         except Exception:
