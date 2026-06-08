@@ -1,15 +1,14 @@
 # Blueprint de Render — despliegue automático
-# Conecta tu repo en https://dashboard.render.com/blueprints
+# Repo: https://github.com/75535671-eng/Semana13Actividad1
 
 services:
-  # ── Backend FastAPI ──────────────────────────────────────────
   - type: web
     name: sem13-backend
     runtime: python
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
@@ -22,14 +21,12 @@ services:
       - key: CORS_ORIGINS
         sync: false
 
-  # ── Frontend Angular (sitio estático) ────────────────────────
   - type: web
     name: sem13-frontend
     runtime: static
     region: oregon
-    plan: free
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run build -- --configuration production
     staticPublishPath: ./dist/frontend/browser
     routes:
       - type: rewrite
