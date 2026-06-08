@@ -1,19 +1,21 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.firebase import get_firebase_error, init_firebase, is_firebase_ready
+from app.firebase import (
+    credentials_configured,
+    get_firebase_error,
+    init_firebase,
+    is_firebase_ready,
+)
 from app.routers import firestore, realtime
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    cred_path = Path(settings.firebase_credentials_path)
-    has_credentials = bool(settings.firebase_credentials_json) or cred_path.exists()
-    if has_credentials:
+    if credentials_configured():
         try:
             init_firebase()
         except Exception:
@@ -46,6 +48,8 @@ def root():
         "message": "API Firebase - Sem13-Actividad-IngWeb",
         "project": "sem13-actividad-ingweb",
         "firebase_ready": is_firebase_ready(),
+        "firebase_error": get_firebase_error(),
+        "credentials_configured": credentials_configured(),
         "docs": "/docs",
         "endpoints": {
             "firestore": "/api/firestore/tasks",
@@ -56,8 +60,16 @@ def root():
 
 @app.get("/health")
 def health():
+    if not is_firebase_ready() and credentials_configured():
+        try:
+            init_firebase()
+        except Exception:
+            pass
+
     return {
         "status": "ok",
         "firebase_ready": is_firebase_ready(),
         "firebase_error": get_firebase_error(),
+        "credentials_configured": credentials_configured(),
+        "database_url_configured": bool(settings.firebase_database_url),
     }

@@ -11,16 +11,34 @@ _firestore_client = None
 _firebase_error: str | None = None
 
 
+def credentials_configured() -> bool:
+    if settings.firebase_credentials_json.strip():
+        return True
+    return Path(settings.firebase_credentials_path).exists()
+
+
+def _parse_credentials_json(raw: str) -> dict:
+    raw = raw.strip()
+    if not raw:
+        raise ValueError("FIREBASE_CREDENTIALS_JSON está vacío.")
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        # Algunos paneles convierten \n literales en saltos de línea reales
+        compact = " ".join(line.strip() for line in raw.splitlines())
+        return json.loads(compact)
+
+
 def _load_credentials():
-    if settings.firebase_credentials_json:
-        return credentials.Certificate(json.loads(settings.firebase_credentials_json))
+    if settings.firebase_credentials_json.strip():
+        return credentials.Certificate(_parse_credentials_json(settings.firebase_credentials_json))
 
     cred_path = Path(settings.firebase_credentials_path)
     if not cred_path.exists():
         raise FileNotFoundError(
-            f"No se encontró el archivo de credenciales: {cred_path}. "
-            "En Render, configura la variable FIREBASE_CREDENTIALS_JSON. "
-            "En local, descarga la clave desde Firebase Console > Cuentas de servicio."
+            "Credenciales no configuradas. En Render agrega FIREBASE_CREDENTIALS_JSON "
+            "o vincula el Environment Group firebase-sem13 al servicio sem13-backend."
         )
     return credentials.Certificate(str(cred_path))
 
@@ -35,18 +53,24 @@ def init_firebase() -> None:
         _firebase_error = "FIREBASE_DATABASE_URL no está configurada."
         raise ValueError(_firebase_error)
 
+    if not credentials_configured():
+        _firebase_error = (
+            "FIREBASE_CREDENTIALS_JSON no está configurada en Render. "
+            "Ve a sem13-backend → Environment → vincula firebase-sem13."
+        )
+        raise FileNotFoundError(_firebase_error)
+
     try:
         cred = _load_credentials()
-    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        _firebase_app = firebase_admin.initialize_app(
+            cred,
+            {"databaseURL": settings.firebase_database_url},
+        )
+        _firestore_client = firestore.client()
+        _firebase_error = None
+    except Exception as exc:
         _firebase_error = str(exc)
         raise
-
-    _firebase_app = firebase_admin.initialize_app(
-        cred,
-        {"databaseURL": settings.firebase_database_url},
-    )
-    _firestore_client = firestore.client()
-    _firebase_error = None
 
 
 def is_firebase_ready() -> bool:
