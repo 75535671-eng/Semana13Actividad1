@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414710400234",
+    "project_id": "sem13-actividad-ingweb",
+    "storage_bucket": "sem13-actividad-ingweb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414710400234:android:9532243354484082ec0393",
+        "android_client_info": {
+          "package_name": "com.semana13actividad.ingweb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0Ec6aAVboFKyKbAxfQ5AEUEMDJjC3OIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

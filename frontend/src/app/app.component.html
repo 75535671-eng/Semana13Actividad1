@@ -1,0 +1,14 @@
+<header class="header">
+  <div class="header__inner">
+    <h1 class="header__title">{{ title }}</h1>
+    <p class="header__subtitle">Angular + FastAPI + Firebase</p>
+    <nav class="nav">
+      <a routerLink="/firestore" routerLinkActive="active">Firestore (Tareas)</a>
+      <a routerLink="/realtime" routerLinkActive="active">Realtime DB (Chat)</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+  <router-outlet />
+</main>

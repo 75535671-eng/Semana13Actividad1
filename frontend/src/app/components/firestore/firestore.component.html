@@ -1,0 +1,52 @@
+<section class="card">
+  <h2>Tareas — Firestore</h2>
+  <p class="hint">Conectado a Firestore — proyecto sem13-actividad-ingweb (tiempo real)</p>
+
+  @if (error) {
+    <div class="alert">{{ error }}</div>
+  }
+
+  <form class="form" (ngSubmit)="addTask()">
+    <input
+      type="text"
+      [(ngModel)]="newTitle"
+      name="title"
+      placeholder="Título de la tarea"
+      required
+    />
+    <input
+      type="text"
+      [(ngModel)]="newDescription"
+      name="description"
+      placeholder="Descripción (opcional)"
+    />
+    <button type="submit" class="btn btn--primary">Agregar tarea</button>
+  </form>
+
+  @if (loading) {
+    <p class="loading">Cargando...</p>
+  } @else if (tasks.length === 0) {
+    <p class="empty">No hay tareas. ¡Crea la primera!</p>
+  } @else {
+    <ul class="list">
+      @for (task of tasks; track task.id) {
+        <li class="list__item" [class.completed]="task.completed">
+          <label class="checkbox">
+            <input
+              type="checkbox"
+              [checked]="task.completed"
+              (change)="toggleTask(task)"
+            />
+            <span class="checkbox__label">
+              <strong>{{ task.title }}</strong>
+              @if (task.description) {
+                <small>{{ task.description }}</small>
+              }
+            </span>
+          </label>
+          <button class="btn btn--danger" (click)="deleteTask(task.id)">Eliminar</button>
+        </li>
+      }
+    </ul>
+  }
+</section>

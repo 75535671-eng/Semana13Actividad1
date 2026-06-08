@@ -1,0 +1,47 @@
+<section class="card">
+  <h2>Chat — Realtime Database</h2>
+  <p class="hint">Conectado a Realtime Database — proyecto sem13-actividad-ingweb</p>
+
+  @if (error) {
+    <div class="alert">{{ error }}</div>
+  }
+
+  <form class="form" (ngSubmit)="sendMessage()">
+    <input
+      type="text"
+      [(ngModel)]="newUser"
+      name="user"
+      placeholder="Tu nombre"
+      required
+    />
+    <input
+      type="text"
+      [(ngModel)]="newText"
+      name="text"
+      placeholder="Escribe un mensaje..."
+      required
+    />
+    <button type="submit" class="btn btn--primary">Enviar</button>
+  </form>
+
+  @if (loading) {
+    <p class="loading">Cargando...</p>
+  } @else if (messages.length === 0) {
+    <p class="empty">No hay mensajes. ¡Sé el primero en escribir!</p>
+  } @else {
+    <ul class="messages">
+      @for (msg of messages; track msg.id) {
+        <li class="messages__item">
+          <div class="messages__content">
+            <span class="messages__user">{{ msg.user }}</span>
+            <span class="messages__text">{{ msg.text }}</span>
+            @if (msg.timestamp) {
+              <span class="messages__time">{{ formatTime(msg.timestamp) }}</span>
+            }
+          </div>
+          <button class="btn btn--danger" (click)="deleteMessage(msg.id)">×</button>
+        </li>
+      }
+    </ul>
+  }
+</section>

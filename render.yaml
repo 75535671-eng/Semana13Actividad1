@@ -1,0 +1,40 @@
+# Blueprint de Render — despliegue automático
+# Conecta tu repo en https://dashboard.render.com/blueprints
+
+services:
+  # ── Backend FastAPI ──────────────────────────────────────────
+  - type: web
+    name: sem13-backend
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.11"
+      - key: FIREBASE_DATABASE_URL
+        value: https://sem13-actividad-ingweb-default-rtdb.firebaseio.com
+      - key: FIREBASE_CREDENTIALS_JSON
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+  # ── Frontend Angular (sitio estático) ────────────────────────
+  - type: web
+    name: sem13-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist/frontend/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
